@@ -3,14 +3,25 @@ import React from 'react'
 import styles from './page.module.css';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
-import discBrands from './discBrands';
-import discMolds from './discMolds';
+import Database from './database'
 
 
 const BagBuilder = () => {
     const [selectedManufacturer, setSelectedManufacturer] = React.useState<string | null>('');
+    const allManufacturers = [
+        ...new Set(Database.map((disc) => disc.Manufacturer).filter(Boolean))
+    ].sort();
+
     React.useEffect(() => {
-        console.log(selectedManufacturer);
+    }, [selectedManufacturer]);
+
+    // Filter disc models based on selected manufacturer
+    const discModels = React.useMemo(() => {
+        if (!selectedManufacturer) return [];
+        return Database
+            .filter(disc => disc.Manufacturer === selectedManufacturer)
+            .map(disc => disc["Disc Model"])
+            .sort();
     }, [selectedManufacturer]);
 
     return (
@@ -33,7 +44,7 @@ const BagBuilder = () => {
                         <label htmlFor="">Choose a disc manufacturer:</label>
                         <Autocomplete
                             disablePortal
-                            options={discBrands}
+                            options={allManufacturers}
                             value={selectedManufacturer}
                             onChange={(event: any, newValue: string | null) => {
                                 setSelectedManufacturer(newValue);
@@ -46,14 +57,14 @@ const BagBuilder = () => {
                     </div>
                     <div>
                         <label htmlFor="">Choose a disc mold:</label>
-                        {/* <Autocomplete
+                        <Autocomplete
                             disablePortal
-                            options={discMolds}
+                            options={discModels}
                             sx={{ width: 300 }}
                             renderInput={(params) => (
                                 <TextField {...params} label="Disc Mold" variant="standard" />
                             )}
-                        /> */}
+                        />
                     </div>
                 </div>
                 <div className={styles.gridItem}></div>
