@@ -27,8 +27,8 @@ const NAVIGATION: Navigation = [
     icon: <Backpack />,
   },
   {
-    segment: 'in-the-bag',
-    title: 'In the Bag',
+    segment: 'pro-loadouts',
+    title: 'Pro Loadouts',
     icon: <Hiking />,
   },
   {
