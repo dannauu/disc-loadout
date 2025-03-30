@@ -67,7 +67,7 @@ const NAVIGATION: Navigation = [
 ];
 
 const BRANDING = {
-  logo: <Image src="/images/navbar/disc-loadout-logo_white.png" alt="MUI logo" />,
+  logo: <Image className='logo' src="/images/navbar/disc-loadout-logo_white.png" alt="MUI logo" width={1851} height={565}/>,
   title: '',
   homeUrl: '/',
 };
