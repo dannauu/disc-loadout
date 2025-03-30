@@ -8,6 +8,8 @@ import Database from './database'
 
 const BagBuilder = () => {
     const [selectedManufacturer, setSelectedManufacturer] = React.useState<string | null>('');
+
+    // Extract unique manufacturers from the database
     const allManufacturers = [
         ...new Set(Database.map((disc) => disc.Manufacturer).filter(Boolean))
     ].sort();
@@ -29,8 +31,8 @@ const BagBuilder = () => {
             <p>
                 User uploads all discs they own or willing to throw and then they can create a bag with those discs they uploaded or chose. Ask questions, left or right handed, forehand or backend, skill level?
             </p>
-            <div className={styles.gridWrapper}>
-                <div className={styles.gridItem}>
+            <div className="gridWrapper">
+                <div className="gridItem bagBuilder">
                     <div>
                         <label htmlFor="">How long have you been playing disc golf?</label>
                         <Autocomplete
@@ -67,9 +69,9 @@ const BagBuilder = () => {
                         />
                     </div>
                 </div>
-                <div className={styles.gridItem}></div>
-                <div className={styles.gridItem}></div>
-                <div className={styles.gridItem}></div>
+                <div className="gridItem"></div>
+                <div className="gridItem"></div>
+                <div className="gridItem"></div>
             </div>
         </div>
     )
