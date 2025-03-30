@@ -31,8 +31,8 @@ const BagBuilder = () => {
             <p>
                 User uploads all discs they own or willing to throw and then they can create a bag with those discs they uploaded or chose. Ask questions, left or right handed, forehand or backend, skill level?
             </p>
-            <div className="gridWrapper">
-                <div className="gridItem bagBuilder">
+            <div className={styles.gridWrapper}>
+                <div className={styles.gridItem}>
                     <div>
                         <label htmlFor="">How long have you been playing disc golf?</label>
                         <Autocomplete
@@ -69,9 +69,9 @@ const BagBuilder = () => {
                         />
                     </div>
                 </div>
-                <div className="gridItem"></div>
-                <div className="gridItem"></div>
-                <div className="gridItem"></div>
+                <div className={styles.gridItem}></div>
+                <div className={styles.gridItem}></div>
+                <div className={styles.gridItem}></div>
             </div>
         </div>
     )

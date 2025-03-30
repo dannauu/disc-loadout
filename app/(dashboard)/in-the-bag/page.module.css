@@ -1,0 +1,28 @@
+.gridWrapper {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    width: 100%;
+}
+
+.gridItem {
+    border: solid #fff 1px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+}
+
+.gridItem img {
+    border-radius: 10px 10px 0 0;
+    width: 100%;
+    height: auto;
+}
+
+.gridItem div {
+    padding: 1rem;
+}
+
+.gridItem div h2 {
+    margin-bottom: 1rem;
+}
