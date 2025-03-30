@@ -15,6 +15,7 @@ import {
 
 
 import theme from '../theme';
+import Image from 'next/image';
 
 const NAVIGATION: Navigation = [
   {
@@ -66,7 +67,7 @@ const NAVIGATION: Navigation = [
 ];
 
 const BRANDING = {
-  logo: <img src="/images/navbar/disc-loadout-logo_white.png" alt="MUI logo" />,
+  logo: <Image src="/images/navbar/disc-loadout-logo_white.png" alt="MUI logo" />,
   title: '',
   homeUrl: '/',
 };
