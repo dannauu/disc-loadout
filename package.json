@@ -15,6 +15,10 @@
     "@mui/material-nextjs": "^6",
     "@mui/x-charts": "^7.28.0",
     "@toolpad/core": "0.13.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^5.1.0",
+    "mongoose": "^8.13.1",
     "next": "^15",
     "react": "^19",
     "react-dom": "^19"
@@ -25,6 +29,7 @@
     "@types/react-dom": "^18",
     "eslint": "^8",
     "eslint-config-next": "^15",
+    "nodemon": "^3.1.9",
     "typescript": "^5"
   }
 }
