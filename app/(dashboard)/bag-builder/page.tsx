@@ -3,28 +3,48 @@ import React from 'react'
 import styles from './page.module.css';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
-import Database from './database'
 
 
 const BagBuilder = () => {
     const [selectedManufacturer, setSelectedManufacturer] = React.useState<string | null>('');
+    const [allBrands, setAllBrands] = React.useState<string[]>([]);
+    const [discMolds, setDiscMolds] = React.useState<string[]>([]);
 
-    // Extract unique manufacturers from the database
-    const allManufacturers = [
-        ...new Set(Database.map((disc) => disc.Manufacturer).filter(Boolean))
-    ].sort();
+
+    // Extract  manufacturers from the database
+    React.useEffect(() => {
+        const fetchBrands = async () => {
+            try {
+                const res = await fetch('http://localhost:5000/api/brands');
+                const data = await res.json();
+                setAllBrands(data);
+            } catch (err) {
+                console.error('Failed to load brands', err);
+            }
+        };
+
+        fetchBrands();
+    }, []);
 
     React.useEffect(() => {
+        const fetchDiscsByBrand = async () => {
+            if (!selectedManufacturer) return;
+
+            try {
+                const res = await fetch(`http://localhost:5000/api/brands/${encodeURIComponent(selectedManufacturer)}`);
+                const data = await res.json();
+
+                // Extract unique disc names/molds
+                const molds = data.map((disc: any) => disc.name);
+                setDiscMolds(molds);
+            } catch (err) {
+                console.error('Failed to fetch discs for brand', err);
+            }
+        };
+
+        fetchDiscsByBrand();
     }, [selectedManufacturer]);
 
-    // Filter disc models based on selected manufacturer
-    const discModels = React.useMemo(() => {
-        if (!selectedManufacturer) return [];
-        return Database
-            .filter(disc => disc.Manufacturer === selectedManufacturer)
-            .map(disc => disc["Disc Model"])
-            .sort();
-    }, [selectedManufacturer]);
 
     return (
         <div className="main">
@@ -46,11 +66,9 @@ const BagBuilder = () => {
                         <label htmlFor="">Choose a disc manufacturer:</label>
                         <Autocomplete
                             disablePortal
-                            options={allManufacturers}
+                            options={allBrands}
+                            onChange={(event, value) => setSelectedManufacturer(value)}
                             value={selectedManufacturer}
-                            onChange={(event: any, newValue: string | null) => {
-                                setSelectedManufacturer(newValue);
-                            }}
                             sx={{ width: 300 }}
                             renderInput={(params) => (
                                 <TextField {...params} label="Disc Manufacturer" variant="standard" />
@@ -61,7 +79,7 @@ const BagBuilder = () => {
                         <label htmlFor="">Choose a disc mold:</label>
                         <Autocomplete
                             disablePortal
-                            options={discModels}
+                            options={discMolds}
                             sx={{ width: 300 }}
                             renderInput={(params) => (
                                 <TextField {...params} label="Disc Mold" variant="standard" />

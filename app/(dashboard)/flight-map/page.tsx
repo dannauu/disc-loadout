@@ -1,190 +1,170 @@
-import * as React from 'react';
+'use client'
+import React, { useState, useEffect } from 'react';
 import { ScatterChart } from '@mui/x-charts/ScatterChart';
-import { Box } from '@mui/material';
+import { Box, Autocomplete, TextField } from '@mui/material';
+import type { ScatterItemIdentifier } from '@mui/x-charts';
+import NorthWestIcon from '@mui/icons-material/NorthWest';
+
 
 const FlightMap = () => {
-  const data = [
-    {
-      id: 'data-0',
-      x1: 329.39,
-      x2: 391.29,
-      y1: 443.28,
-      y2: 153.9,
-    },
-    {
-      id: 'data-1',
-      x1: 96.94,
-      x2: 139.6,
-      y1: 110.5,
-      y2: 217.8,
-    },
-    {
-      id: 'data-2',
-      x1: 336.35,
-      x2: 282.34,
-      y1: 175.23,
-      y2: 286.32,
-    },
-    {
-      id: 'data-3',
-      x1: 159.44,
-      x2: 384.85,
-      y1: 195.97,
-      y2: 325.12,
-    },
-    {
-      id: 'data-4',
-      x1: 188.86,
-      x2: 182.27,
-      y1: 351.77,
-      y2: 144.58,
-    },
-    {
-      id: 'data-5',
-      x1: 143.86,
-      x2: 360.22,
-      y1: 43.253,
-      y2: 146.51,
-    },
-    {
-      id: 'data-6',
-      x1: 202.02,
-      x2: 209.5,
-      y1: 376.34,
-      y2: 309.69,
-    },
-    {
-      id: 'data-7',
-      x1: 384.41,
-      x2: 258.93,
-      y1: 31.514,
-      y2: 236.38,
-    },
-    {
-      id: 'data-8',
-      x1: 256.76,
-      x2: 70.571,
-      y1: 231.31,
-      y2: 440.72,
-    },
-    {
-      id: 'data-9',
-      x1: 143.79,
-      x2: 419.02,
-      y1: 108.04,
-      y2: 20.29,
-    },
-    {
-      id: 'data-10',
-      x1: 103.48,
-      x2: 15.886,
-      y1: 321.77,
-      y2: 484.17,
-    },
-    {
-      id: 'data-11',
-      x1: 272.39,
-      x2: 189.03,
-      y1: 120.18,
-      y2: 54.962,
-    },
-    {
-      id: 'data-12',
-      x1: 23.57,
-      x2: 456.4,
-      y1: 366.2,
-      y2: 418.5,
-    },
-    {
-      id: 'data-13',
-      x1: 219.73,
-      x2: 235.96,
-      y1: 451.45,
-      y2: 181.32,
-    },
-    {
-      id: 'data-14',
-      x1: 54.99,
-      x2: 434.5,
-      y1: 294.8,
-      y2: 440.9,
-    },
-    {
-      id: 'data-15',
-      x1: 134.13,
-      x2: 383.8,
-      y1: 121.83,
-      y2: 273.52,
-    },
-    {
-      id: 'data-16',
-      x1: 12.7,
-      x2: 270.8,
-      y1: 287.7,
-      y2: 346.7,
-    },
-    {
-      id: 'data-17',
-      x1: 176.51,
-      x2: 119.17,
-      y1: 134.06,
-      y2: 74.528,
-    },
-    {
-      id: 'data-18',
-      x1: 65.05,
-      x2: 78.93,
-      y1: 104.5,
-      y2: 150.9,
-    },
-    {
-      id: 'data-19',
-      x1: 162.25,
-      x2: 63.707,
-      y1: 413.07,
-      y2: 26.483,
-    },
-    {
-      id: 'data-20',
-      x1: 68.88,
-      x2: 150.8,
-      y1: 74.68,
-      y2: 333.2,
-    },
-    {
-      id: 'data-21',
-      x1: 95.29,
-      x2: 329.1,
-      y1: 360.6,
-      y2: 422.0,
-    },
-    {
-      id: 'data-22',
-      x1: 390.62,
-      x2: 10.01,
-      y1: 330.72,
-      y2: 488.06,
-    },
-  ];
+  const [allBrands, setAllBrands] = useState<string[]>([]);
+  const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
+  const [discs, setDiscs] = useState<any[]>([]);
+  const [selectedDisc, setSelectedDisc] = useState<any | null>(null);
+
+
+  // Fetch all brands for Autocomplete
+  useEffect(() => {
+    const fetchBrands = async () => {
+      try {
+        const res = await fetch('http://localhost:5000/api/brands');
+        const data = await res.json();
+        setAllBrands(data);
+      } catch (err) {
+        console.error('Failed to load brands', err);
+      }
+    };
+    fetchBrands();
+  }, []);
+
+  // Fetch discs when brand is selected
+  useEffect(() => {
+    const fetchDiscsByBrand = async () => {
+      if (!selectedBrand) return;
+      try {
+        const res = await fetch(`http://localhost:5000/api/brands/${encodeURIComponent(selectedBrand)}`);
+        const data = await res.json();
+        setDiscs(data);
+      } catch (err) {
+        console.error('Failed to fetch discs by brand', err);
+      }
+    };
+    fetchDiscsByBrand();
+  }, [selectedBrand]);
+
+  // Transform discs into chart points
+  const chartData = React.useMemo(() => {
+    return discs
+      .filter((disc) =>
+        disc.speed != null &&
+        disc.turn != null &&
+        disc.fade != null &&
+        !isNaN(Number(disc.speed)) &&
+        !isNaN(Number(disc.turn)) &&
+        !isNaN(Number(disc.fade))
+      )
+      .map((disc, index) => {
+        const turn = Number(disc.turn);
+        const fade = Number(disc.fade);
+        const stabilityIndex = turn + fade;
+
+        return {
+          x: stabilityIndex,
+          y: Number(disc.speed),
+          z: stabilityIndex, // 💥 KEY LINE: this drives color
+          id: disc._id || index,
+          label: disc.name,
+          speed: disc.speed,
+          glide: disc.glide,
+          turn,
+          fade,
+          category: disc.category,
+          stability: disc.stability, // optional, still fine to keep
+        };
+      });
+
+  }, [discs]);
+
+
+
   return (
-    <Box sx={{ width: '100%', height: '100%' }}>
-      <ScatterChart
-        series={[
-          {
-            label: 'Series A',
-            data: data.map((v) => ({ x: v.x1, y: v.y1, id: v.id })),
-            markerSize: 10,
-          },
-          {
-            label: 'Series B',
-            data: data.map((v) => ({ x: v.x1, y: v.y2, id: v.id })),
-            markerSize: 10,
-          },
-        ]}
-        grid={{ vertical: true, horizontal: true }}
-      />
+    <Box sx={{ display: 'flex', flexDirection: 'row', height: '100vh', overflow: 'hidden' }}>
+      {/* Left Side: Controls */}
+      <Box sx={{ width: 300 }}>
+        <Autocomplete
+          disablePortal
+          options={allBrands}
+          value={selectedBrand}
+          onChange={(event, newValue) => setSelectedBrand(newValue)}
+          renderInput={(params) => (
+            <TextField {...params} label="Select Manufacturer" variant="standard" />
+          )}
+        />
+        {selectedDisc && (
+          <Box sx={{ mt: 2, color: 'white' }}>
+            <div>Disc Name: {selectedDisc.label}</div>
+            <div>Speed: {selectedDisc.speed}</div>
+            <div>Glide: {selectedDisc.glide}</div>
+            <div>Turn: {selectedDisc.turn}</div>
+            <div>Fade: {selectedDisc.fade}</div>
+            <div>Stability: {selectedDisc.stability}</div>
+            <div>Category: {selectedDisc.category}</div>
+          </Box>
+        )}
+      </Box>
+
+      {/* Right Side: Chart + Legend */}
+      <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
+        <Box sx={{ width: '100%', height: '100%' }}>
+          <ScatterChart
+            disableVoronoi
+            series={[
+              {
+                id: 'discs',
+                data: chartData,
+                markerSize: 10,
+                highlightScope: {
+                  highlight: 'item',
+                },
+                valueFormatter: (point) => {
+                  const matchingDisc = chartData.find(
+                    (d) => d.x === point.x && d.y === point.y
+                  );
+                  return matchingDisc?.label ?? `(${point.x}, ${point.y})`;
+                },
+              },
+            ]}
+            xAxis={[{ label: 'Stability (Understable → Overstable)', min: -5, max: 6 }]}
+            yAxis={[{ label: 'Speed', min: 0, max: 15 }]}
+            zAxis={[
+              {
+                colorMap: {
+                  type: 'continuous',
+                  min: -5,
+                  max: 5,
+                  color: ['blue', 'red'],
+                },
+              },
+            ]}
+            grid={{ vertical: true, horizontal: true }}
+            onItemClick={(event: React.MouseEvent, itemProps: ScatterItemIdentifier) => {
+              const clickedDisc = chartData[itemProps.dataIndex];
+              setSelectedDisc(clickedDisc);
+            }}
+          />
+        </Box>
+
+        {/* Color Legend */}
+        <Box>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Box
+              sx={{
+                width: 200,
+                height: 12,
+                background: 'linear-gradient(to right, blue, gray, red)',
+                borderRadius: 1,
+              }}
+            />
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', width: 200, fontSize: '0.75rem', mt: 0.5, color: 'white' }}>
+            <span>-5.0</span>
+            <span>0</span>
+            <span>6.0</span>
+          </Box>
+        </Box>
+      </Box>
     </Box>
   );
-}
+};
 
-export default FlightMap
+export default FlightMap;

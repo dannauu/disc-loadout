@@ -2,12 +2,14 @@
 const mongoose = require('mongoose');
 
 const DiscSchema = new mongoose.Schema({
-    manufacturer: { type: String, required: true },
-    discModel: { type: String, required: true },
-    speed: { type: Number, required: true },
-    glide: { type: Number, required: true },
-    turn: { type: Number, required: true },
-    fade: { type: Number, required: true },
+    name: { type: String, required: true },
+    brand: { type: String, required: true },
+    category: { type: String, required: true },
+    speed: { type: String, required: true },
+    glide: { type: String, required: true },
+    turn: { type: String, required: true },
+    fade: { type: String, required: true },
+    stability: { type: String, required: true },
 }, {
     timestamps: true
 });
