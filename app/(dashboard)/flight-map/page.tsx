@@ -3,7 +3,14 @@ import React, { useState, useEffect } from 'react';
 import { ScatterChart } from '@mui/x-charts/ScatterChart';
 import { Box, Autocomplete, TextField } from '@mui/material';
 import type { ScatterItemIdentifier } from '@mui/x-charts';
-import NorthWestIcon from '@mui/icons-material/NorthWest';
+import Typography from '@mui/material/Typography';
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+} from '@mui/material';
 
 
 const FlightMap = () => {
@@ -11,6 +18,7 @@ const FlightMap = () => {
   const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
   const [discs, setDiscs] = useState<any[]>([]);
   const [selectedDisc, setSelectedDisc] = useState<any | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
 
   // Fetch all brands for Autocomplete
@@ -61,7 +69,7 @@ const FlightMap = () => {
         return {
           x: stabilityIndex,
           y: Number(disc.speed),
-          z: stabilityIndex, // 💥 KEY LINE: this drives color
+          z: stabilityIndex,
           id: disc._id || index,
           label: disc.name,
           speed: disc.speed,
@@ -69,7 +77,7 @@ const FlightMap = () => {
           turn,
           fade,
           category: disc.category,
-          stability: disc.stability, // optional, still fine to keep
+          stability: disc.stability,
         };
       });
 
@@ -78,8 +86,8 @@ const FlightMap = () => {
 
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'row', height: '100vh', overflow: 'hidden' }}>
-      {/* Left Side: Controls */}
+
+    <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
       <Box sx={{ width: 300 }}>
         <Autocomplete
           disablePortal
@@ -90,80 +98,108 @@ const FlightMap = () => {
             <TextField {...params} label="Select Manufacturer" variant="standard" />
           )}
         />
-        {selectedDisc && (
-          <Box sx={{ mt: 2, color: 'white' }}>
-            <div>Disc Name: {selectedDisc.label}</div>
-            <div>Speed: {selectedDisc.speed}</div>
-            <div>Glide: {selectedDisc.glide}</div>
-            <div>Turn: {selectedDisc.turn}</div>
-            <div>Fade: {selectedDisc.fade}</div>
-            <div>Stability: {selectedDisc.stability}</div>
-            <div>Category: {selectedDisc.category}</div>
-          </Box>
-        )}
+
+        <Dialog
+          open={dialogOpen}
+          onClose={() => setDialogOpen(false)}>
+          <DialogTitle
+            sx={{ fontWeight: 'bold', fontSize: '2.25rem', color: 'primary.main', textAlign: 'center' }}>
+            {selectedDisc?.label}
+          </DialogTitle>
+
+          <DialogContent>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+              <Typography variant="body1">
+                <strong>Category:</strong> {selectedDisc?.category}
+              </Typography>
+              <Typography variant="body1">
+                <strong>Stability:</strong> {selectedDisc?.stability}
+              </Typography>
+              <Typography variant="body1">
+                <strong>Speed:</strong> {selectedDisc?.speed}
+              </Typography>
+              <Typography variant="body1">
+                <strong>Glide:</strong> {selectedDisc?.glide}
+              </Typography>
+              <Typography variant="body1">
+                <strong>Turn:</strong> {selectedDisc?.turn}
+              </Typography>
+              <Typography variant="body1">
+                <strong>Fade:</strong> {selectedDisc?.fade}
+              </Typography>
+            </Box>
+          </DialogContent>
+
+          <DialogActions sx={{ justifyContent: 'center' }}>
+            <Button
+              onClick={() => setDialogOpen(false)}
+              variant="outlined"
+              color="primary">
+              Close
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Box>
+      <Box sx={{ width: '100%', height: '70vh' }}>
+        <ScatterChart
+          disableVoronoi
+          series={[
+            {
+              id: 'discs',
+              data: chartData,
+              markerSize: 8,
+              highlightScope: {
+                highlight: 'item',
+              },
+              valueFormatter: (point) => {
+                const matchingDisc = chartData.find(
+                  (d) => d.x === point.x && d.y === point.y
+                );
+                return matchingDisc?.label ?? `(${point.x}, ${point.y})`;
+              },
+            },
+          ]}
+          xAxis={[{ label: 'Stability (Understable → Overstable)', min: -5, max: 6 }]}
+          yAxis={[{ label: 'Speed', min: 0, max: 15 }]}
+          zAxis={[
+            {
+              colorMap: {
+                type: 'continuous',
+                min: -5,
+                max: 5,
+                color: ['blue', 'red'],
+              },
+            },
+          ]}
+          grid={{ vertical: true, horizontal: true }}
+          onItemClick={(event: React.MouseEvent, itemProps: ScatterItemIdentifier) => {
+            const clickedDisc = chartData[itemProps.dataIndex];
+            setSelectedDisc(clickedDisc);
+            setDialogOpen(true);
+          }}
+        />
       </Box>
 
-      {/* Right Side: Chart + Legend */}
-      <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
-        <Box sx={{ width: '100%', height: '100%' }}>
-          <ScatterChart
-            disableVoronoi
-            series={[
-              {
-                id: 'discs',
-                data: chartData,
-                markerSize: 10,
-                highlightScope: {
-                  highlight: 'item',
-                },
-                valueFormatter: (point) => {
-                  const matchingDisc = chartData.find(
-                    (d) => d.x === point.x && d.y === point.y
-                  );
-                  return matchingDisc?.label ?? `(${point.x}, ${point.y})`;
-                },
-              },
-            ]}
-            xAxis={[{ label: 'Stability (Understable → Overstable)', min: -5, max: 6 }]}
-            yAxis={[{ label: 'Speed', min: 0, max: 15 }]}
-            zAxis={[
-              {
-                colorMap: {
-                  type: 'continuous',
-                  min: -5,
-                  max: 5,
-                  color: ['blue', 'red'],
-                },
-              },
-            ]}
-            grid={{ vertical: true, horizontal: true }}
-            onItemClick={(event: React.MouseEvent, itemProps: ScatterItemIdentifier) => {
-              const clickedDisc = chartData[itemProps.dataIndex];
-              setSelectedDisc(clickedDisc);
+      {/* Color Legend */}
+      <Box>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Box
+            sx={{
+              width: 200,
+              height: 12,
+              background: 'linear-gradient(to right, blue, purple, red)',
+              borderRadius: 1,
             }}
           />
         </Box>
-
-        {/* Color Legend */}
-        <Box>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Box
-              sx={{
-                width: 200,
-                height: 12,
-                background: 'linear-gradient(to right, blue, gray, red)',
-                borderRadius: 1,
-              }}
-            />
-          </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', width: 200, fontSize: '0.75rem', mt: 0.5, color: 'white' }}>
-            <span>-5.0</span>
-            <span>0</span>
-            <span>6.0</span>
-          </Box>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', width: 200, fontSize: '0.75rem', mt: 0.5, color: 'white' }}>
+          <span>-5.0</span>
+          <span>0</span>
+          <span>6.0</span>
         </Box>
       </Box>
     </Box>
+
   );
 };
 
